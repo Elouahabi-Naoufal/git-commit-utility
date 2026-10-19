@@ -1,281 +1,420 @@
-# Comit - Git Shortcut Utility
+<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+<a id="readme-top"></a>
 
-A professional Git shortcut utility that replaces complex multi-step Git workflows with simple, memorable commands. Instead of typing multiple Git commands, you can accomplish common tasks with a single `comit` command.
 
-## What This Does
 
-If you're tired of typing the same Git commands over and over, this tool is for you. Instead of:
 
-```bash
+<!-- PROJECT SHIELDS -->
+<!--
+*** I'm using markdown "reference style" links for readability.
+*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
+*** See the bottom of this document for the declaration of the reference variables
+*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
+*** https://www.markdownguide.org/basic-syntax/#reference-style-links
+-->
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
+
+
+
+
+<!-- PROJECT TITLE BLOCK -->
+<br />
+<div align="center">
+  <a href="https://github.com/Elouahabi-Naoufal/comit">
+    <h3 align="center">comit</h3>
+  </a>
+
+  <p align="center">
+    A single-file Bash wrapper around the Git commands you run all day.
+    <br />
+    <a href="https://github.com/Elouahabi-Naoufal/comit"><strong>Read the source »</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/Elouahabi-Naoufal/comit/issues">Report Bug</a>
+    &middot;
+    <a href="https://github.com/Elouahabi-Naoufal/comit/issues">Request Feature</a>
+  </p>
+</div>
+
+
+
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
+
+
+
+
+<!-- ABOUT THE PROJECT -->
+## About The Project
+
+`comit` collapses the three-command loop into one:
+
+```sh
+# instead of
 git add .
 git commit -m "Fix authentication bug"
 git push origin main
-```
 
-You just type:
-
-```bash
+# you type
 comit "Fix authentication bug"
 ```
 
-That's it. The tool handles over 40 different Git workflows, from basic commits to advanced operations like interactive rebasing and hotfix management.
+It is a single Bash script — around 1,300 lines, no dependencies beyond `git` itself, nothing to compile.
+Copy it onto a machine and it works. Every subcommand maps to a real Git command, so nothing is abstracted
+away: `comit -s` is `git status --short`, `comit --tree` is `git log --graph --oneline --all -15`, and so on.
 
-## Installation
+What it actually does:
 
-### Linux & macOS
+* **Commit shortcuts** — the default commit, work-in-progress commits, amend, fixup, and a force variant.
+* **Branch shortcuts** — create, switch, merge, delete, plus `feature/NAME` scaffolding and timestamped
+  `hotfix/YYYYMMDD-HHMM` branches cut from `main`.
+* **Stash shortcuts** — stash with a message, pop the latest one, or `git add .` followed by a stash as a
+  quick save point.
+* **Recovery** — `--oops` / `--undo` soft-resets the last commit while keeping the changes staged.
+* **Rewriting** — interactive squash of the last N commits, hard reset to a branch, and a fork sync against
+  an `upstream` remote.
+* **Repository setup** — interactive `git init` with branch and remote, clone-and-enter, and a GitHub
+  flow that creates the repo's first commit and pushes it.
+* **Insight** — status, log, diff, commit graph, contributor shortlog, object counts, remote list.
 
-#### Quick Install (Recommended)
+Safety rails that are actually in the code: `check_git_repo` refuses to run outside a working tree,
+`--delete` refuses to remove the branch you are standing on, and `--clean`, `--hard-reset` and `--ssh`-adjacent
+destructive paths ask for confirmation before running.
 
-1. Download the `comit` file from this repository
-2. Make it executable and move it to your system path:
+State lives in `~/.comit/`: `config` for key/value settings and `token` for an optional GitHub PAT written
+with `chmod 600`.
 
-```bash
-chmod +x comit
-sudo mv comit /usr/local/bin/
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+### Built With
+
+* [![Bash][Bash.com]][Bash-url]
+* [![Git][Git.com]][Git-url]
+* [![GNU coreutils][Coreutils.com]][Coreutils-url] — `date`, `grep`, `basename`
+* [![OpenSSH][OpenSSH.com]][OpenSSH-url] — `ssh-keygen`, `ssh-agent`, `ssh-add`, used by `--ssh`
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- GETTING STARTED -->
+## Getting Started
+
+### Prerequisites
+
+* `git` on your `PATH`.
+* Bash 4+ (the script uses `[[ ... ]]`, regex matching inside `[[ ]]`, and `$(...)`). macOS ships Bash 3.2
+  as `/bin/bash`; running the script through `zsh` or a newer Bash works, but `/usr/bin/env bash` will pick
+  the old one if that is all you have.
+* A Unix-like shell environment. On Windows, use WSL or Git Bash.
+
+### Installation
+
+1. Clone the repository
+
+   ```sh
+   git clone https://github.com/Elouahabi-Naoufal/comit.git
+   cd comit
+   ```
+
+2. Install the script
+
+   System-wide:
+
+   ```sh
+   sudo install -m 755 comit /usr/local/bin/comit
+   ```
+
+   Or, without `sudo`, into your own `PATH`:
+
+   ```sh
+   mkdir -p ~/.local/bin
+   install -m 755 comit ~/.local/bin/comit
+   export PATH="$HOME/.local/bin:$PATH"     # add this to ~/.bashrc or ~/.zshrc
+   ```
+
+3. Run the setup wizard once
+
+   ```sh
+   comit --setup
+   ```
+
+   It fills in `user.name` and `user.email` if they are unset, optionally stores a GitHub token, and sets
+   `init.defaultBranch=main`, `pull.rebase=false` and `core.autocrlf=input`. These are **global** Git
+   settings, so review them before accepting if you rely on different defaults elsewhere.
+
+4. Confirm it is reachable
+
+   ```sh
+   comit --version
+   comit --help
+   ```
+
+5. Optional: install the man page
+
+   ```sh
+   comit --install-man
+   man comit
+   ```
+
+   This writes `comit.1` to `/usr/local/share/man/man1` when `sudo` works, otherwise to
+   `~/.local/share/man/man1` and appends a `MANPATH` line to `~/.bashrc`.
+
+6. Change the git remote to your fork before committing
+
+   ```sh
+   git remote set-url origin https://github.com/Elouahabi-Naoufal/comit.git
+   git remote -v # confirm the changes
+   ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- USAGE EXAMPLES -->
+## Usage
+
+```
+comit [OPTION] [MESSAGE|TARGET]
 ```
 
-3. Run the setup wizard:
+### Everyday commits
 
-```bash
-comit --setup
+```sh
+comit "Fix authentication bug"      # add, commit, push to origin/<current branch>
+comit --wip "Trying a different fix" # add, commit as "WIP: ...", no push
+comit -a "Correct the typo"          # amend the previous commit, optionally force-push
+comit --fixup a1b2c3d "Handle nulls"  # git commit --fixup=a1b2c3d
+comit -p                             # git pull origin <current branch>
+comit --sync                         # pull then push
 ```
 
-#### Manual Install (No sudo required)
+### Branches
 
-1. Create a local bin directory:
-
-```bash
-mkdir -p ~/.local/bin
+```sh
+comit -b feature/login              # git checkout -b feature/login
+comit -b                             # same, prompts for the branch name
+comit -c main                        # git checkout main
+comit --merge feature/login          # git merge feature/login
+comit --delete feature/login         # git branch -d, after a y/N confirmation
+comit --new-feature login "Add login form"   # feature/login, commit, push -u
+comit --hotfix "Patch 500"           # hotfix/20261018-1430 cut from main
+comit --release v1.2.1               # annotated tag, pushed to origin
 ```
 
-2. Copy and make executable:
+### Rewriting and recovery
 
-```bash
-cp comit ~/.local/bin/
-chmod +x ~/.local/bin/comit
+```sh
+comit --squash 3                    # git rebase -i HEAD~3
+comit --oops                         # git reset --soft HEAD~1, changes kept
+comit --undo                         # same as --oops
+comit --reset                        # interactive: git reset --hard <target> && git clean -fd
+comit --hard-reset main              # same, with a confirmation prompt
+comit --clean                        # git reset --hard HEAD && git clean -fd
+comit --sync-fork                    # fetch upstream, merge upstream/main into main, push
 ```
 
-3. Add to PATH in your shell profile:
+`--clean`, `--reset` and `--hard-reset` all discard uncommitted work and untracked files. Nothing is
+recoverable afterwards except through `git reflog` for the commits themselves.
 
-**For Bash** (`~/.bashrc` or `~/.bash_profile`):
-```bash
-export PATH="$HOME/.local/bin:$PATH"
+### Stashing
+
+```sh
+comit --save "before refactor"       # git add . && git stash push -m "..."
+comit --stash "WIP on the parser"    # git stash push -m "..." (staged changes only if you have staged them)
+comit --unstash                      # git stash pop
 ```
 
-**For Zsh** (`~/.zshrc`):
-```bash
-export PATH="$HOME/.local/bin:$PATH"
+### Repository setup
+
+```sh
+comit --init                         # git init, pick a branch name, optionally attach a remote
+comit --clone https://github.com/user/repo.git
+comit --token                        # prompt for GitHub user/repo, create the first commit, push it
+comit --ssh                          # generate ~/.ssh/id_ed25519 if missing, load it, print the public key
 ```
 
-4. Restart your terminal or run `source ~/.bashrc` (or `source ~/.zshrc`)
+### Inspection
 
-### Windows
-
-#### Using WSL (Windows Subsystem for Linux) - Recommended
-
-1. Install WSL2 with Ubuntu from Microsoft Store
-2. Open Ubuntu terminal and follow the Linux installation steps above
-3. Use `comit` from within the WSL environment
-
-#### Using Git Bash
-
-1. Install Git for Windows (includes Git Bash)
-2. Download the `comit` file to a folder like `C:\tools\`
-3. Open Git Bash and navigate to the folder:
-
-```bash
-cd /c/tools/
-chmod +x comit
+```sh
+comit -s                             # git status --short
+comit -l                             # git log --oneline
+comit --diff                         # git diff
+comit --tree                         # git log --graph --oneline --all -15
+comit --who                          # git shortlog -sn
+comit --size                         # git count-objects -vH
+comit -r                             # git remote -v
 ```
 
-4. Add to PATH by creating an alias in `~/.bashrc`:
+### A note on `-n` and `-f` in v5.0
 
-```bash
-echo 'alias comit="/c/tools/comit"' >> ~/.bashrc
-source ~/.bashrc
-```
+`-n`/`--no-push` and `-f`/`--force` are currently not honoured the way the help text describes. The script
+runs `git add . && git commit && git push origin <branch>` unconditionally before it reaches the flag
+handler, so:
 
-#### Using PowerShell (Advanced)
+* `comit -n "msg"` still pushes to the remote. To commit without pushing today, use
+  `comit --wip "msg"` or run the Git commands directly.
+* `comit -f "msg"` pushes once normally and then again with `--force`.
 
-1. Install Git for Windows
-2. Create a PowerShell wrapper script `comit.ps1`:
+The `simple_push` and `smart_push` helpers at the bottom of the script contain the logic that was meant to
+handle this — including the diverged-branch prompt — but nothing calls them. See the roadmap below.
 
-```powershell
-#!/usr/bin/env pwsh
-bash C:\tools\comit $args
-```
+### Safety notes on the GitHub token
 
-3. Add the script location to your PowerShell PATH
+`comit --token` builds the remote URL as `https://<token>@github.com/<user>/<repo>.git`, which writes the
+token in cleartext into `.git/config` and into `git remote -v` output. `--save-token` stores it in
+`~/.comit/token` with mode `600`, which is fine, but a token embedded in the remote URL is not. Prefer
+`--ssh`, or a credential helper, for anything beyond a throwaway repository.
 
-## First Time Setup
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-After installation, run the setup wizard to configure Git and optionally save your GitHub token:
 
-```bash
-comit --setup
-```
 
-This will configure your Git username, email, default branch settings, and optionally save a GitHub token for private repository operations.
+<!-- ROADMAP -->
+## Roadmap
 
-## Basic Usage
+Present and working in `comit` v5.0:
 
-### Simple Commits
-```bash
-comit "Your commit message"           # Add, commit, and push
-comit -n "Work in progress"           # Commit without pushing
-comit --wip "Still working on this"   # Quick work-in-progress commit
-```
+- [x] Default commit-and-push, WIP, amend, fixup and stash shortcuts
+- [x] Branch create / checkout / merge / delete, `feature/` and timestamped `hotfix/` helpers
+- [x] Interactive squash, reset, hard reset and clean, all behind confirmation prompts
+- [x] Fork sync against an `upstream` remote
+- [x] Interactive `--init`, `--clone` and GitHub `--token` flows
+- [x] SSH key generation for GitHub
+- [x] Coloured `[INFO]`/`[SUCCESS]`/`[WARNING]`/`[ERROR]` output and a repository guard
+- [x] Self-contained man page installable with `--install-man`
 
-### Branch Operations
-```bash
-comit -b feature/login "Start login"  # Create new branch and commit
-comit -c main                         # Switch to main branch
-comit --merge feature/login           # Merge branch into current
-```
+Open, and visible in the current code:
 
-### Quick Info
-```bash
-comit -s                              # Quick status
-comit -l                              # Recent commit log
-comit --tree                          # Visual commit tree
-```
+- [ ] Wire `simple_push` / `smart_push` into the commit path so `-n` really skips the push, `-f` pushes
+      once, and a diverged branch triggers the merge / rebase / force prompt that `show_help` advertises.
+- [ ] `-b|--branch` is documented as "create branch and commit", but it only runs `git checkout -b` and
+      exits — either add the commit or correct the wording.
+- [ ] `show_help` lists `-r, --reset` under Advanced Operations, while the parser binds `-r` to
+      `--remote`; `--reset` is long-form only.
+- [ ] `load_config` / `save_config` are defined but never called, so `~/.comit/config` is never actually
+      written or read.
+- [ ] macOS ships Bash 3.2, below the version the script assumes.
+- [ ] No automated tests. The flag matrix is wide enough that a `bats` suite would catch the regressions
+      above before release.
 
-## All Available Commands
+See the [open issues](https://github.com/Elouahabi-Naoufal/comit/issues) for a full list of proposed features (and known issues).
 
-Run `comit --help` to see the complete list of available commands. The help is organized into categories:
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-- **Setup & Configuration**: First-time setup, token management, SSH keys
-- **Basic Commits**: Standard commit workflows with various options
-- **Branch Operations**: Create, switch, merge, and delete branches
-- **Workflow Shortcuts**: Pull, sync, stash operations
-- **Advanced Operations**: Squashing, resetting, hotfixes, releases
-- **Information & Status**: Various ways to check repository status
 
-## Common Workflows
 
-### Daily Development
-```bash
-comit -p                              # Pull latest changes
-comit "Fix user authentication"       # Make changes and commit
-comit --sync                          # Sync with remote
-```
-
-### Feature Development
-```bash
-comit -b feature/new-ui "Start UI"    # Create feature branch
-comit "Add login form"                # Work on feature
-comit "Style login page"              # More commits
-comit -c main                         # Switch back to main
-comit --merge feature/new-ui          # Merge when ready
-```
-
-### Emergency Fixes
-```bash
-comit --hotfix "Fix critical bug"     # Creates timestamped hotfix branch
-comit --release v1.2.1               # Tag and push release
-```
-
-## GitHub Integration
-
-The tool supports GitHub token integration for private repositories and enhanced features:
-
-```bash
-comit --save-token                    # Save your GitHub token
-comit --token                         # Initialize new repo with GitHub
-comit --ssh                           # Setup SSH keys for GitHub
-```
-
-## Advanced Features
-
-### Interactive Operations
-- `comit --squash 3` - Interactively squash last 3 commits
-- `comit --clean` - Clean workspace (with confirmation)
-- `comit --hard-reset main` - Hard reset to main branch
-
-### Repository Management
-- `comit --clone https://github.com/user/repo` - Clone and setup
-- `comit --sync-fork` - Sync forked repository with upstream
-- `comit --new-feature name` - Create feature branch with upstream
-
-## Safety Features
-
-The tool includes several safety measures:
-
-- Confirmation prompts for destructive operations
-- Automatic checks for Git repository presence
-- Clear error messages and colored output
-- Ability to undo last commit with `comit --oops`
-
-## Documentation
-
-Install the man page for offline documentation:
-
-```bash
-comit --install-man
-man comit
-```
-
-## Requirements
-
-### All Platforms
-- Git installed and configured
-- Optional: GitHub account for token features
-
-### Platform-Specific
-- **Linux/macOS**: Bash shell (pre-installed)
-- **Windows**: WSL2, Git Bash, or PowerShell with Git for Windows
-
-## Troubleshooting
-
-### Command Not Found
-
-**Linux/macOS:**
-- Check if file is executable: `chmod +x /usr/local/bin/comit`
-- Verify PATH includes the directory: `echo $PATH`
-
-**Windows (Git Bash):**
-- Ensure the alias is set: `alias comit`
-- Check if Git Bash can find the file: `which comit`
-
-**Windows (WSL):**
-- Follow the Linux troubleshooting steps above
-
-### Permission Denied
-
-**Linux/macOS:**
-- Use the manual install method to install in your home directory
-- Or use `sudo` if you have administrator access
-
-**Windows:**
-- Run Git Bash or PowerShell as Administrator
-- Or place the file in a user-writable directory
-
-### Git Errors
-Run `comit --config` to check your Git configuration. Make sure your username and email are set:
-
-```bash
-git config --global user.name "Your Name"
-git config --global user.email "your.email@example.com"
-```
-
-## Why Use This
-
-This tool was created because developers spend too much time typing repetitive Git commands. Whether you're a beginner who finds Git intimidating or an experienced developer who wants to work faster, this utility streamlines your workflow.
-
-Instead of memorizing dozens of Git command combinations, you learn one simple command with intuitive options. The tool handles the complexity while you focus on your code.
-
-## About This Project
-
-I created this tool because I was tired of typing the same Git commands over and over again. As a developer, I found myself constantly running `git add .`, `git commit -m "message"`, and `git push` multiple times a day. I wanted something simpler and faster.
-
-After using this utility daily and seeing how much time it saves, I decided to share it on GitHub for other developers who might be facing the same repetitive workflow issues. Whether you're a beginner who finds Git intimidating or an experienced developer who wants to speed up your workflow, this tool can help.
-
+<!-- CONTRIBUTING -->
 ## Contributing
 
-Feel free to suggest improvements, report issues, or contribute new features. The tool is designed to be simple and reliable, covering the most common Git workflows that developers use daily.
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-If you have questions, suggestions, or just want to share how you're using `comit`, feel free to reach out through GitHub issues or discussions. I'm always happy to hear from fellow developers and improve this tool based on real-world usage.
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
 
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+Keep the script dependency-free and POSIX-adjacent: it should still run on a stock macOS and a stock
+Ubuntu with nothing but `git` installed. If you add an option, add it to `show_help` *and* to the man page
+in `--install-man` — the two are maintained by hand and have already drifted apart.
+
+### Top contributors:
+
+<a href="https://github.com/Elouahabi-Naoufal/comit/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Elouahabi-Naoufal/comit" alt="contrib.rocks image" />
+</a>
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- LICENSE -->
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Distributed under the MIT License. See [`LICENSE`](LICENSE) for more information.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- CONTACT -->
+## Contact
+
+Naoufal Elouahabi - [LinkedIn](https://www.linkedin.com/in/elouahabi-naoufal/) - elouahabi-naoufal1@gmail.com
+
+Project Link: [https://github.com/Elouahabi-Naoufal/comit](https://github.com/Elouahabi-Naoufal/comit)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+* [Git](https://git-scm.com/) — the tool this wraps
+* [Pro Git](https://git-scm.com/book/en/v2) — the reference the command mapping follows
+* [Img Shields](https://shields.io)
+* [Choose an Open Source License](https://choosealicense.com)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/Elouahabi-Naoufal/comit.svg?style=for-the-badge
+[contributors-url]: https://github.com/Elouahabi-Naoufal/comit/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/Elouahabi-Naoufal/comit.svg?style=for-the-badge
+[forks-url]: https://github.com/Elouahabi-Naoufal/comit/network/members
+[stars-shield]: https://img.shields.io/github/stars/Elouahabi-Naoufal/comit.svg?style=for-the-badge
+[stars-url]: https://github.com/Elouahabi-Naoufal/comit/stargazers
+[issues-shield]: https://img.shields.io/github/issues/Elouahabi-Naoufal/comit.svg?style=for-the-badge
+[issues-url]: https://github.com/Elouahabi-Naoufal/comit/issues
+[license-shield]: https://img.shields.io/github/license/Elouahabi-Naoufal/comit.svg?style=for-the-badge
+[license-url]: https://github.com/Elouahabi-Naoufal/comit/blob/main/LICENSE
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://www.linkedin.com/in/elouahabi-naoufal/
+[Bash.com]: https://img.shields.io/badge/bash-4EAA25?style=for-the-badge&logo=gnubash&logoColor=white
+[Bash-url]: https://www.gnu.org/software/bash/
+[Git.com]: https://img.shields.io/badge/git-F05032?style=for-the-badge&logo=git&logoColor=white
+[Git-url]: https://git-scm.com/
+[Coreutils.com]: https://img.shields.io/badge/coreutils-437291?style=for-the-badge
+[Coreutils-url]: https://www.gnu.org/software/coreutils/
+[OpenSSH.com]: https://img.shields.io/badge/OpenSSH-40739C?style=for-the-badge&logo=openssh&logoColor=white
+[OpenSSH-url]: https://www.openssh.com/

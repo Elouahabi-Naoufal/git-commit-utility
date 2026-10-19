@@ -1,17 +1,6 @@
-<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a id="readme-top"></a>
 
-
-
-
 <!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -19,30 +8,24 @@
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
-
-
-
 <!-- PROJECT TITLE BLOCK -->
 <br />
 <div align="center">
-  <a href="https://github.com/Elouahabi-Naoufal/comit">
-    <h3 align="center">comit</h3>
+  <a href="https://github.com/Elouahabi-Naoufal/git-commit-utility">
+    <h3 align="center">git-commit-utility</h3>
   </a>
 
   <p align="center">
     A single-file Bash wrapper around the Git commands you run all day.
     <br />
-    <a href="https://github.com/Elouahabi-Naoufal/comit"><strong>Read the source »</strong></a>
+    <a href="https://github.com/Elouahabi-Naoufal/git-commit-utility"><strong>Explore the source »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/Elouahabi-Naoufal/comit/issues">Report Bug</a>
+    <a href="https://github.com/Elouahabi-Naoufal/git-commit-utility/issues">Report Bug</a>
     &middot;
-    <a href="https://github.com/Elouahabi-Naoufal/comit/issues">Request Feature</a>
+    <a href="https://github.com/Elouahabi-Naoufal/git-commit-utility/issues">Request Feature</a>
   </p>
 </div>
-
-
-
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -70,13 +53,10 @@
   </ol>
 </details>
 
-
-
-
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-`comit` collapses the three-command loop into one:
+`git-commit-utility` (the installed command is `comit`) collapses the three-command loop into one:
 
 ```sh
 # instead of
@@ -88,7 +68,7 @@ git push origin main
 comit "Fix authentication bug"
 ```
 
-It is a single Bash script — around 1,300 lines, no dependencies beyond `git` itself, nothing to compile.
+It is a single Bash script — about 1,300 lines, no dependencies beyond `git` itself, nothing to compile.
 Copy it onto a machine and it works. Every subcommand maps to a real Git command, so nothing is abstracted
 away: `comit -s` is `git status --short`, `comit --tree` is `git log --graph --oneline --all -15`, and so on.
 
@@ -107,15 +87,13 @@ What it actually does:
 * **Insight** — status, log, diff, commit graph, contributor shortlog, object counts, remote list.
 
 Safety rails that are actually in the code: `check_git_repo` refuses to run outside a working tree,
-`--delete` refuses to remove the branch you are standing on, and `--clean`, `--hard-reset` and `--ssh`-adjacent
-destructive paths ask for confirmation before running.
+`--delete` refuses to remove the branch you are standing on, and `--clean`, `--hard-reset` and
+`--reset` ask for confirmation before running.
 
 State lives in `~/.comit/`: `config` for key/value settings and `token` for an optional GitHub PAT written
 with `chmod 600`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 ### Built With
 
@@ -125,8 +103,6 @@ with `chmod 600`.
 * [![OpenSSH][OpenSSH.com]][OpenSSH-url] — `ssh-keygen`, `ssh-agent`, `ssh-add`, used by `--ssh`
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- GETTING STARTED -->
 ## Getting Started
@@ -144,8 +120,8 @@ with `chmod 600`.
 1. Clone the repository
 
    ```sh
-   git clone https://github.com/Elouahabi-Naoufal/comit.git
-   cd comit
+   git clone https://github.com/Elouahabi-Naoufal/git-commit-utility.git
+   cd git-commit-utility
    ```
 
 2. Install the script
@@ -191,16 +167,7 @@ with `chmod 600`.
    This writes `comit.1` to `/usr/local/share/man/man1` when `sudo` works, otherwise to
    `~/.local/share/man/man1` and appends a `MANPATH` line to `~/.bashrc`.
 
-6. Change the git remote to your fork before committing
-
-   ```sh
-   git remote set-url origin https://github.com/Elouahabi-Naoufal/comit.git
-   git remote -v # confirm the changes
-   ```
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- USAGE EXAMPLES -->
 ## Usage
@@ -229,7 +196,7 @@ comit -c main                        # git checkout main
 comit --merge feature/login          # git merge feature/login
 comit --delete feature/login         # git branch -d, after a y/N confirmation
 comit --new-feature login "Add login form"   # feature/login, commit, push -u
-comit --hotfix "Patch 500"           # hotfix/20261018-1430 cut from main
+comit --hotfix "Patch 500"           # hotfix/YYYYMMDD-HHMM cut from main
 comit --release v1.2.1               # annotated tag, pushed to origin
 ```
 
@@ -252,7 +219,7 @@ recoverable afterwards except through `git reflog` for the commits themselves.
 
 ```sh
 comit --save "before refactor"       # git add . && git stash push -m "..."
-comit --stash "WIP on the parser"    # git stash push -m "..." (staged changes only if you have staged them)
+comit --stash "WIP on the parser"    # git stash push -m "..."
 comit --unstash                      # git stash pop
 ```
 
@@ -288,7 +255,7 @@ handler, so:
 * `comit -f "msg"` pushes once normally and then again with `--force`.
 
 The `simple_push` and `smart_push` helpers at the bottom of the script contain the logic that was meant to
-handle this — including the diverged-branch prompt — but nothing calls them. See the roadmap below.
+handle this, but nothing calls them. See the roadmap below.
 
 ### Safety notes on the GitHub token
 
@@ -299,8 +266,6 @@ token in cleartext into `.git/config` and into `git remote -v` output. `--save-t
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- ROADMAP -->
 ## Roadmap
 
@@ -308,7 +273,7 @@ Present and working in `comit` v5.0:
 
 - [x] Default commit-and-push, WIP, amend, fixup and stash shortcuts
 - [x] Branch create / checkout / merge / delete, `feature/` and timestamped `hotfix/` helpers
-- [x] Interactive squash, reset, hard reset and clean, all behind confirmation prompts
+- [x] Interactive squash, reset, hard reset and clean, behind confirmation prompts
 - [x] Fork sync against an `upstream` remote
 - [x] Interactive `--init`, `--clone` and GitHub `--token` flows
 - [x] SSH key generation for GitHub
@@ -326,22 +291,22 @@ Open, and visible in the current code:
 - [ ] `load_config` / `save_config` are defined but never called, so `~/.comit/config` is never actually
       written or read.
 - [ ] macOS ships Bash 3.2, below the version the script assumes.
-- [ ] No automated tests. The flag matrix is wide enough that a `bats` suite would catch the regressions
-      above before release.
+- [ ] No automated tests. The flag matrix is wide enough that a `bats` suite would catch regressions
+      before release.
 
-See the [open issues](https://github.com/Elouahabi-Naoufal/comit/issues) for a full list of proposed features (and known issues).
+See the [open issues](https://github.com/Elouahabi-Naoufal/git-commit-utility/issues) for a full list of
+proposed features and known issues.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- CONTRIBUTING -->
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are what make the open source community such an amazing place to learn, inspire, and create.
+Any contributions you make are **greatly appreciated**.
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You
+can also simply open an issue with the tag "enhancement". Don't forget to give the project a star!
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
@@ -355,13 +320,11 @@ in `--install-man` — the two are maintained by hand and have already drifted a
 
 ### Top contributors:
 
-<a href="https://github.com/Elouahabi-Naoufal/comit/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Elouahabi-Naoufal/comit" alt="contrib.rocks image" />
+<a href="https://github.com/Elouahabi-Naoufal/git-commit-utility/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Elouahabi-Naoufal/git-commit-utility" alt="contrib.rocks image" />
 </a>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- LICENSE -->
 ## License
@@ -370,18 +333,14 @@ Distributed under the MIT License. See [`LICENSE`](LICENSE) for more information
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- CONTACT -->
 ## Contact
 
 Naoufal Elouahabi - [LinkedIn](https://www.linkedin.com/in/elouahabi-naoufal/) - elouahabi-naoufal1@gmail.com
 
-Project Link: [https://github.com/Elouahabi-Naoufal/comit](https://github.com/Elouahabi-Naoufal/comit)
+Project Link: [https://github.com/Elouahabi-Naoufal/git-commit-utility](https://github.com/Elouahabi-Naoufal/git-commit-utility)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
@@ -393,21 +352,18 @@ Project Link: [https://github.com/Elouahabi-Naoufal/comit](https://github.com/El
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
-
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/Elouahabi-Naoufal/comit.svg?style=for-the-badge
-[contributors-url]: https://github.com/Elouahabi-Naoufal/comit/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/Elouahabi-Naoufal/comit.svg?style=for-the-badge
-[forks-url]: https://github.com/Elouahabi-Naoufal/comit/network/members
-[stars-shield]: https://img.shields.io/github/stars/Elouahabi-Naoufal/comit.svg?style=for-the-badge
-[stars-url]: https://github.com/Elouahabi-Naoufal/comit/stargazers
-[issues-shield]: https://img.shields.io/github/issues/Elouahabi-Naoufal/comit.svg?style=for-the-badge
-[issues-url]: https://github.com/Elouahabi-Naoufal/comit/issues
-[license-shield]: https://img.shields.io/github/license/Elouahabi-Naoufal/comit.svg?style=for-the-badge
-[license-url]: https://github.com/Elouahabi-Naoufal/comit/blob/main/LICENSE
+[contributors-shield]: https://img.shields.io/github/contributors/Elouahabi-Naoufal/git-commit-utility.svg?style=for-the-badge
+[contributors-url]: https://github.com/Elouahabi-Naoufal/git-commit-utility/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/Elouahabi-Naoufal/git-commit-utility.svg?style=for-the-badge
+[forks-url]: https://github.com/Elouahabi-Naoufal/git-commit-utility/network/members
+[stars-shield]: https://img.shields.io/github/stars/Elouahabi-Naoufal/git-commit-utility.svg?style=for-the-badge
+[stars-url]: https://github.com/Elouahabi-Naoufal/git-commit-utility/stargazers
+[issues-shield]: https://img.shields.io/github/issues/Elouahabi-Naoufal/git-commit-utility.svg?style=for-the-badge
+[issues-url]: https://github.com/Elouahabi-Naoufal/git-commit-utility/issues
+[license-shield]: https://img.shields.io/github/license/Elouahabi-Naoufal/git-commit-utility.svg?style=for-the-badge
+[license-url]: https://github.com/Elouahabi-Naoufal/git-commit-utility/blob/main/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/elouahabi-naoufal/
 [Bash.com]: https://img.shields.io/badge/bash-4EAA25?style=for-the-badge&logo=gnubash&logoColor=white
